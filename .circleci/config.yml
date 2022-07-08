@@ -106,7 +106,7 @@ jobs:
   scan-frontend:
     docker:
        - image: cimg/node:16.15.0
-     steps:
+    steps:
       - checkout
       - restore_cache:
           keys: [frontend-build]
