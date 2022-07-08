@@ -54,7 +54,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: cimg/node:16.15.1
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -64,8 +64,6 @@ jobs:
           command: |
              cd backend
              npm install
-             npm update
-             npm audit fix --force
              npm run build
            #  exit 1
       - save_cache:
