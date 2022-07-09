@@ -136,7 +136,7 @@ jobs:
        - run:
            name: install  gzip and tar
            command: |
-             apt add --update gzip && apt add --update tar 
+             apk add --update gzip && apk add --update tar 
        - run:
            name: Ensure back-end infrastructure exists
            command: |
