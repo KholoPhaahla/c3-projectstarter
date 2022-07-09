@@ -133,7 +133,7 @@ jobs:
         - image: amazon/aws-cli
      steps:
        - checkout
-      - run:
+       - run:
            name: install  gzip and tar
            command: |
              apt add --update gzip && apt add --update tar 
