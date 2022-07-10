@@ -167,7 +167,7 @@ jobs:
        - persist_to_workspace:
            root: ~/
            paths:
-             - project/.cimg/ansible/inventory.txt
+             - project/.circleci/ansible/inventory.txt
 
 #              exit 1  
       #  - run:
