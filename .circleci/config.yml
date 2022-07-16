@@ -218,6 +218,7 @@ jobs:
        - run:
            name: install  NodeJS npm
            command: |
+             curl -sL https://rpm.nodesource.com/setup_8.x | sudo bash -
              yum install -y nodejs npm
        - attach_workspace:
           at: .
