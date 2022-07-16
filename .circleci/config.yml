@@ -181,6 +181,10 @@ jobs:
        - attach_workspace:
           at: .
        - run:
+           name: install aws-cli
+           command: |
+             apk add --update aws-cli
+       - run:
            name: Install dependencies
            command: |
              apk add --update ansible
@@ -188,6 +192,11 @@ jobs:
            name: Configure server
            command: |
              cd .circleci/ansible
+             aws ec2 describe-instances \
+             \
+                    --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                    --filters "Name=tag:project,Values=udapeople" \
+                    --output text >> inventory.txt
              ansible-playbook -i inventory.txt configure-server.yml
   run-migrations:
      docker:
@@ -257,6 +266,10 @@ jobs:
            command: |
              apk add --update nodejs npm
        - run:
+           name: install aws-cli
+           command: |
+             apk add --update aws-cli
+       - run:
            name: install ansible
            command: |
              apk add --update ansible
@@ -269,6 +282,11 @@ jobs:
              cd ..
              tar -C backend -czvf artifact.tar.gz .
              cd .circleci/ansible
+             aws ec2 describe-instances \
+             \
+                    --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                    --filters "Name=tag:project,Values=udapeople" \
+                    --output text >> inventory.txt
              echo "Contents  of the inventory.txt file is -------"
              cat inventory.txt
              ansible-playbook -i inventory.txt deploy-backend.yml
