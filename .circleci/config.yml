@@ -183,7 +183,7 @@ jobs:
        - run:
            name: install aws-cli
            command: |
-             apk add --update aws-cli
+             apk add --no-cache aws-cli
        - run:
            name: Install dependencies
            command: |
@@ -268,7 +268,7 @@ jobs:
        - run:
            name: install aws-cli
            command: |
-             apk add --update aws-cli
+             apk add --no-cache aws-cli
        - run:
            name: install ansible
            command: |
