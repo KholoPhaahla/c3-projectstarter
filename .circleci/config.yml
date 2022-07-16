@@ -167,7 +167,7 @@ jobs:
                     --output text >> inventory.txt
               cat inventory.txt
        - persist_to_workspace:
-           root: .
+           root: ~/
            paths:
              - project/.circleci/ansible/inventory.txt
   configure-infrastructure:
