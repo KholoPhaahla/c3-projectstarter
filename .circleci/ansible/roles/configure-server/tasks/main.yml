@@ -10,6 +10,12 @@
     name: ["nodejs", "npm"]
     state: latest
     update_cache: yes
+- name: "install python."
+  become: true
+  apt:
+    name: python3
+    state: latest
+    update_cache: yes
 
 - name: "install pm2"
   become: true
