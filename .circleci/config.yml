@@ -144,18 +144,18 @@ jobs:
            command: |
              aws cloudformation deploy --debug \
                --template-file=.circleci/files/backend.yml \
-               --stack-name "udapeopleasd-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+               --stack-name "udapeopleasds-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
-               --tags project=udapeopleasd
+               --tags project=udapeopleasds
 #              exit 1
        - run:
            name: Ensure front-end infrastructure exist
            command: |
              aws cloudformation deploy --debug \
                --template-file=.circleci/files/frontend.yml \
-               --stack-name "udapeopleasd-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+               --stack-name "udapeopleasds-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
-               --tags project=udapeopleasd
+               --tags project=udapeopleasds
        - run:
            name: Add back-end ip to ansible inventory
            command: |
@@ -163,7 +163,7 @@ jobs:
              aws ec2 describe-instances \
              \
                     --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                    --filters "Name=tag:project,Values=udapeopleasd" \
+                    --filters "Name=tag:project,Values=udapeopleasds" \
                     --output text >> inventory.txt
               cat inventory.txt
               cd ..
@@ -201,7 +201,7 @@ jobs:
              aws ec2 describe-instances \
              \
                     --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                    --filters "Name=tag:project,Values=udapeopleasd" \
+                    --filters "Name=tag:project,Values=udapeopleasds" \
                     --output text >> inventory.txt
              cat inventory.txt
              ansible-playbook -i inventory.txt configure-server.yml --private-key udacity.pem
@@ -244,7 +244,7 @@ jobs:
        - run:
            name: Get backend url
            command: |
-             export BACKEND_IP=$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeopleasd  Name=instance-state-name,Values=running | grep PublicIpAddress | grep -o -P "\d+\.\d+\.\d+\.\d+" | grep -v '^10\.')
+             export BACKEND_IP=$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeopleasds  Name=instance-state-name,Values=running | grep PublicIpAddress | grep -o -P "\d+\.\d+\.\d+\.\d+" | grep -v '^10\.')
              export API_URL="http://${BACKEND_IP}:3030"
              echo "API_URL = ${API_URL}"
              echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
@@ -258,7 +258,7 @@ jobs:
              npm install
              npm run build
              tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-             aws s3 cp dist s3://udapeopleasd-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+             aws s3 cp dist s3://udapeopleasds-${CIRCLE_WORKFLOW_ID:0:7} --recursive
   deploy-backend:
      docker:
        - image: python:3.7-alpine3.11
@@ -298,7 +298,7 @@ jobs:
              aws ec2 describe-instances \
              \
                     --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                    --filters "Name=tag:project,Values=udapeopleasd" \
+                    --filters "Name=tag:project,Values=udapeopleasds" \
                     --output text >> inventory.txt
              echo "Contents  of the inventory.txt file is -------"
              cat inventory.txt
