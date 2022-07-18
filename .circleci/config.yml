@@ -332,8 +332,9 @@ jobs:
        - run:
            name: Get backend url
            command: |
-             # export BACKEND_IP=$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople  Name=instance-state-name,Values=running | grep PublicIpAddress | grep -o -P "\d+\.\d+\.\d+\.\d+" | grep -v '^10\.')
-             export BACKEND_IP=$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople  Name=instance-state-name,Values=running  --query 'Reservations[*].Instances[*].PublicIpAddress')
+             #export BACKEND_IP=$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople  Name=instance-state-name,Values=running | grep PublicIpAddress | grep -o -P "\d+\.\d+\.\d+\.\d+" | grep -v '^10\.')
+             #export BACKEND_IP=$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople  Name=instance-state-name,Values=running  --query 'Reservations[*].Instances[*].PublicIpAddress')
+             export BACKEND_IP=$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople  Name=instance-state-name,Values=running --query 'Reservations[*].Instances[*].PublicIpAddress | grep -o -P "\d+\.\d+\.\d+\.\d+" | grep -v '^10\.')
              export API_URL="http://${BACKEND_IP}:3030"
              echo "${API_URL}"
        - run:
