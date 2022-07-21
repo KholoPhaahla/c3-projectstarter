@@ -20,7 +20,7 @@
     state: present
 - name: Copy index test page
   template:
-    src: "project/artifact.tar.gz"
+    src: "artifact.tar.gz"
     dest: "~/"
 
 - name: Unarchive a file that is already on the remote machine
