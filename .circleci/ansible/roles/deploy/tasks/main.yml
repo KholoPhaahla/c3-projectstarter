@@ -18,6 +18,12 @@
     global: yes
     production: yes
     state: present
+    
+- unarchive:
+    src: /project/artifact.tar.gz
+    dest: .
+    remote_src: True
+
 - name: Executing node
   shell: |
     npm install
