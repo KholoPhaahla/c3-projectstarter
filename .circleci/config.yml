@@ -293,7 +293,8 @@ jobs:
              npm i
              npm run build
              cd ..
-             tar -C backend -czvf artifact.tar.gz .circleci/ansible
+             tar -C backend -czvf artifact.tar.gz .
+             cp artifact.tar.gz .circleci/ansible/artifact.tar.gz
              cd .circleci/ansible
              ls
              aws ec2 describe-instances \
