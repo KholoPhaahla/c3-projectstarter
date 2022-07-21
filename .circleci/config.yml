@@ -293,8 +293,9 @@ jobs:
              npm i
              npm run build
              cd ..
-             tar -C backend -czvf artifact.tar.gz .
+             tar -C backend -czvf artifact.tar.gz .circleci/ansible
              cd .circleci/ansible
+             ls
              aws ec2 describe-instances \
              \
                     --query 'Reservations[*].Instances[*].PublicIpAddress' \
