@@ -20,7 +20,7 @@
     state: present
     
 - unarchive:
-    src: /project/artifact.tar.gz
+    src: artifact.tar.gz
     dest: .
     remote_src: True
 
