@@ -290,9 +290,12 @@ jobs:
            name: Deploy backend
            command: |
              cd backend
-             npm i
+             npm install
+             npm update
+             npm audit fix --audit-level=critical --force
+             npm audit --audit-level=critical
              npm run build
-             cd ..
+             
              tar -C backend -czvf backend.tar.gz .
              cp backend.tar.gz .circleci/ansible/roles/deploy/tasks/backend.tar.gz
              cd .circleci/ansible
