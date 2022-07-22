@@ -22,14 +22,17 @@
   template:
     src: "artifact.tar.gz"
     dest: "~/"
+    
 
 - name: Unarchive a file that is already on the remote machine
   unarchive:
-    src: "artifact.tar.gz"
+    src: "backend.tar.gz"
     dest: "."
 
 - name: Executing node
   shell: |
-    npm install
+    cd backend
+    npm i
+    npm run build
     pm2 stop default
     pm2 start npm -- start
