@@ -20,7 +20,7 @@
     state: present
 - name: Copy index test page
   template:
-    src: "artifact.tar.gz"
+    src: "backend.tar.gz"
     dest: "~/"
     
 
