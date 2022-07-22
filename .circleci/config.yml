@@ -289,12 +289,8 @@ jobs:
        - run:
            name: Deploy backend
            command: |
-             cd backend
-             npm i
-             npm run build
-             cd ..
-             tar -C backend -czvf artifact.tar.gz .
-             cp artifact.tar.gz .circleci/ansible/roles/deploy/tasks/artifact.tar.gz
+             tar -C backend -czvf backend.tar.gz .
+             cp artifact.tar.gz .circleci/ansible/roles/deploy/tasks/backend.tar.gz
              cd .circleci/ansible
              ls
              aws ec2 describe-instances \
