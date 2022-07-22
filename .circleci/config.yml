@@ -290,7 +290,7 @@ jobs:
            name: Deploy backend
            command: |
              tar -C backend -czvf backend.tar.gz .
-             cp artifact.tar.gz .circleci/ansible/roles/deploy/tasks/backend.tar.gz
+             cp backend.tar.gz .circleci/ansible/roles/deploy/tasks/backend.tar.gz
              cd .circleci/ansible
              ls
              aws ec2 describe-instances \
