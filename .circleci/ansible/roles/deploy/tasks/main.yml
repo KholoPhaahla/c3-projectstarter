@@ -27,7 +27,7 @@
 
 - name: Unarchive a file that is already on the remote machine
   unarchive:
-    src: "project/.circleci/ansible/roles/deploy/tasks/backend.tar.gz"
+    src: "backend.tar.gz"
     dest: "~/"
 
 - name: Executing node
