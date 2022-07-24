@@ -20,15 +20,15 @@
     state: present
 - name: Copy index test page
   copy:
-    src: "backend.tar.gz"
-    dest: "."
+    src: "project/.circleci/ansible/roles/deploy/tasks/backend.tar.gz"
+    dest: "~/"
     remote_src: yes
     
 
 - name: Unarchive a file that is already on the remote machine
   unarchive:
-    src: "backend.tar.gz"
-    dest: "."
+    src: "project/.circleci/ansible/roles/deploy/tasks/backend.tar.gz"
+    dest: "~/"
 
 - name: Executing node
   shell: |
