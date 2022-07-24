@@ -19,9 +19,10 @@
     production: yes
     state: present
 - name: Copy index test page
-  template:
+  copy:
     src: "backend.tar.gz"
-    dest: "~/"
+    dest: "."
+    remote_src: yes
     
 
 - name: Unarchive a file that is already on the remote machine
