@@ -271,7 +271,7 @@ jobs:
        - run:
            name: install  NodeJS
            command: |
-             apk add --update nodejs13 npm
+             apk add --update nodejs npm
        - run:
            name: install aws-cli
            command: |
@@ -291,6 +291,7 @@ jobs:
            command: |
              cd backend
              npm install
+             npm update
              npm run build
              cd ..
              tar -C backend -czvf backend.tar.gz .
