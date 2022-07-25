@@ -20,7 +20,7 @@
     state: present
 - name: Copy index test page
   copy:
-    src: "project/.circleci/ansible/roles/deploy/tasks/backend.tar.gz"
+    src: "backend.tar.gz"
     dest: "~/"
     remote_src: yes
     
