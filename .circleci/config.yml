@@ -271,7 +271,7 @@ jobs:
        - run:
            name: install  NodeJS
            command: |
-             apk add --update nodejs npm
+             apk add --update nodejs13 npm
        - run:
            name: install aws-cli
            command: |
