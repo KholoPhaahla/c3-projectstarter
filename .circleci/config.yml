@@ -237,7 +237,7 @@ jobs:
        - run:
            name: install  NodeJS npm
            command: |
-             curl -sL https://rpm.nodesource.com/setup_8.x | bash -
+             curl -sL https://rpm.nodesource.com/setup_16.x | bash -
              yum install -y nodejs npm
        - attach_workspace:
           at: .
@@ -266,8 +266,6 @@ jobs:
        - checkout
        - add_ssh_keys:
            fingerprints: ["62:08:7c:06:0b:40:b4:77:12:0e:5c:3e:34:2b:96:ce"]
-       - restore_cache:
-          keys: [backend-build]
        - run:
            name: install aws-cli
            command: |
@@ -283,8 +281,16 @@ jobs:
            command: |
              apk add --update ansible
        - run:
+           name: install-node
+           command: |
+              curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash - && sudo apt-get install -y nodejs
+       - run:
            name: Deploy backend
            command: |
+             cd backend
+             npm i
+             npm run build
+             cd ..
              tar -C backend -czvf backend.tar.gz .
              cp backend.tar.gz .circleci/ansible/roles/deploy/tasks/backend.tar.gz
              cd .circleci/ansible
