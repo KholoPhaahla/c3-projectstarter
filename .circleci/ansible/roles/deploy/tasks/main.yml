@@ -4,12 +4,9 @@
   apt:
     upgrade: "yes"
 
-- name: "install dependencies."
-  become: true
-  apt:
-    name: ["nodejs", "npm"]
-    state: latest
-    update_cache: yes
+- name: install node 
+  shell: |
+    curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash - && sudo apt-get install -y nodejs
 
 - name: "install pm2"
   become: true
@@ -27,5 +24,6 @@
   shell: |
     ls
     npm install
+    npm run build
     pm2 stop default
     pm2 start npm -- start

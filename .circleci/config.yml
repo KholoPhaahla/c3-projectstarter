@@ -289,11 +289,6 @@ jobs:
        - run:
            name: Deploy backend
            command: |
-             cd backend
-             npm install
-             npm update
-             npm run build
-             cd ..
              tar -C backend -czvf backend.tar.gz .
              cp backend.tar.gz .circleci/ansible/roles/deploy/tasks/backend.tar.gz
              cd .circleci/ansible
