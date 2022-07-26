@@ -52,7 +52,7 @@ jobs:
           key: frontend-build
   build-backend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/node:16.15.1
     steps:
       - checkout
       - restore_cache:
@@ -266,12 +266,8 @@ jobs:
        - checkout
        - add_ssh_keys:
            fingerprints: ["62:08:7c:06:0b:40:b4:77:12:0e:5c:3e:34:2b:96:ce"]
-       - attach_workspace:
-          at: project/.circleci/ansible/inventory.txt
-       - run:
-           name: install  NodeJS
-           command: |
-             apk add --update nodejs npm
+       - restore_cache:
+          keys: [backend-build]
        - run:
            name: install aws-cli
            command: |
