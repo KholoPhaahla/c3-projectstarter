@@ -34,7 +34,7 @@ commands:
 jobs:
   build-frontend:
     docker:
-      - image: cimg/node:16.15.1
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -52,7 +52,7 @@ jobs:
           key: frontend-build
   build-backend:
     docker:
-      - image: cimg/node:16.15.1
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -69,7 +69,7 @@ jobs:
           key: backend-build
   test-frontend:
     docker:
-      - image: cimg/node:16.15.1
+      - image: cimg/node:13.8.0
        # Docker image here
     steps:
       - checkout
@@ -88,7 +88,7 @@ jobs:
                 
   test-backend:
    docker:
-    - image: cimg/node:16.15.0
+    - image: cimg/node:13.8.0
        # Docker image here
    steps:
       - checkout
@@ -179,21 +179,12 @@ jobs:
        - add_ssh_keys:
            fingerprints: ["62:08:7c:06:0b:40:b4:77:12:0e:5c:3e:34:2b:96:ce"]
        - attach_workspace:
-          at: .
+           at: ~/
        - run:
-           name: install aws-cli
-           command: |
-             apk add --no-cache \
-             python3 \
-             py3-pip \
-             && pip3 install --upgrade pip \
-             && pip3 install \
-             awscli \
-             && rm -rf /var/cache/apk/*
-       - run:
-           name: Install dependencies
-           command: |
-             apk add --update ansible
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+            pip install awscli
        - run:
            name: Configure server
            command: |
@@ -266,24 +257,16 @@ jobs:
        - checkout
        - add_ssh_keys:
            fingerprints: ["62:08:7c:06:0b:40:b4:77:12:0e:5c:3e:34:2b:96:ce"]
+       - attach_workspace:
+          at: ~/
        - run:
-           name: install aws-cli
-           command: |
-             apk add --no-cache \
-             python3 \
-             py3-pip \
-             && pip3 install --upgrade pip \
-             && pip3 install \
-             awscli \
-             && rm -rf /var/cache/apk/*
-       - run:
-           name: install ansible
-           command: |
-             apk add --update ansible
-       - run:
-           name: install-node
-           command: |
-              curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash - && sudo apt-get install -y nodejs
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+            apk add --update nodejs npm
+            # for delete env and revert migration
+            apk add --update curl
+            pip install awscli
        - run:
            name: Deploy backend
            command: |
@@ -291,8 +274,9 @@ jobs:
              npm i
              npm run build
              cd ..
-             tar -C backend -czvf backend.tar.gz .
-             cp backend.tar.gz .circleci/ansible/roles/deploy/tasks/backend.tar.gz
+             # Zip the directory
+             tar -C backend -czvf artifact.tar.gz .
+             #cp backend.tar.gz .circleci/ansible/roles/deploy/tasks/backend.tar.gz
              cd .circleci/ansible
              ls
              aws ec2 describe-instances \
