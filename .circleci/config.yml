@@ -34,7 +34,7 @@ commands:
 jobs:
   build-frontend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/node:16.15.1
     steps:
       - checkout
       - restore_cache:
@@ -69,7 +69,7 @@ jobs:
           key: backend-build
   test-frontend:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/node:16.15.1
        # Docker image here
     steps:
       - checkout
@@ -88,7 +88,7 @@ jobs:
                 
   test-backend:
    docker:
-    - image: cimg/node:13.8.0
+    - image: cimg/node:16.15.0
        # Docker image here
    steps:
       - checkout
@@ -179,16 +179,30 @@ jobs:
        - add_ssh_keys:
            fingerprints: ["62:08:7c:06:0b:40:b4:77:12:0e:5c:3e:34:2b:96:ce"]
        - attach_workspace:
-           at: ~/
+          at: .
        - run:
-          name: Install dependencies
-          command: |
-            apk add --update ansible
-            pip install awscli
+           name: install aws-cli
+           command: |
+             apk add --no-cache \
+             python3 \
+             py3-pip \
+             && pip3 install --upgrade pip \
+             && pip3 install \
+             awscli \
+             && rm -rf /var/cache/apk/*
+       - run:
+           name: Install dependencies
+           command: |
+             apk add --update ansible
        - run:
            name: Configure server
            command: |
              cd .circleci/ansible
+             aws ec2 describe-instances \
+             \
+                    --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                    --filters "Name=tag:project,Values=udapeople" \
+                    --output text >> inventory.txt
              cat inventory.txt
              ansible-playbook -i inventory.txt configure-server.yml --private-key udacity.pem
   run-migrations:
@@ -202,16 +216,6 @@ jobs:
            name: Run migrations
            command: |
               cd backend
-              echo "ENVIROMENT=$ENVIROMENT" >> .env
-              echo "TYPEORM_CONNECTION=$TYPEORM_CONNECTION" >> .env
-              echo "TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR" >> .env
-              echo "TYPEORM_ENTITIES=$TYPEORM_ENTITIES" >> .env
-              echo "TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS" >> .env
-              echo "TYPEORM_HOST=$TYPEORM_HOST" >> .env
-              echo "TYPEORM_PORT=$TYPEORM_PORT" >> .env
-              echo "TYPEORM_USERNAME=$TYPEORM_USERNAME" >> .env
-              echo "TYPEORM_PASSWORD=$TYPEORM_PASSWORD" >> .env
-              echo "TYPEORM_DATABASE=$TYPEORM_DATABASE" >> .env
               npm install
               npm run migrations > migrations_dump.txt
        - run:
@@ -233,7 +237,7 @@ jobs:
        - run:
            name: install  NodeJS npm
            command: |
-             curl -sL https://rpm.nodesource.com/setup_16.x | bash -
+             curl -sL https://rpm.nodesource.com/setup_8.x | bash -
              yum install -y nodejs npm
        - attach_workspace:
           at: .
@@ -247,7 +251,6 @@ jobs:
              cat frontend/.env
              export API_URL="http://${BACKEND_IP}:3030"
              echo "${API_URL}"
-             echo "${API_URL}" >> "frontend/.env"
        - run:
            name: Deploy frontend objects
            command: |
@@ -264,46 +267,42 @@ jobs:
        - add_ssh_keys:
            fingerprints: ["62:08:7c:06:0b:40:b4:77:12:0e:5c:3e:34:2b:96:ce"]
        - attach_workspace:
-          at: ~/
+          at: project/.circleci/ansible/inventory.txt
        - run:
-          name: Install dependencies
-          command: |
-            apk add --update ansible
-            apk add --update nodejs npm
-            # for delete env and revert migration
-            apk add --update curl
-            pip install awscli
-       - run:
-           name: build backend
+           name: install  NodeJS
            command: |
-            cd backend
-            npm install
-            npm run build
-            tar -czf artifact.tar.gz dist/* package*
-            cd ..
-            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
-            export TYPEORM_MIGRATIONS_DIR=./migrations
-            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
-            export TYPEORM_MIGRATIONS=./migrations/*.ts
+             apk add --update nodejs npm
        - run:
-          name: Create env file
-          command: |
-            cd backend
-            touch .env
-            echo "ENVIROMENT=$ENVIROMENT" >> .env
-            echo "TYPEORM_CONNECTION=$TYPEORM_CONNECTION" >> .env
-            echo "TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR" >> .env
-            echo "TYPEORM_ENTITIES=$TYPEORM_ENTITIES" >> .env
-            echo "TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS" >> .env
-            echo "TYPEORM_HOST=$TYPEORM_HOST" >> .env
-            echo "TYPEORM_PORT=$TYPEORM_PORT" >> .env
-            echo "TYPEORM_USERNAME=$TYPEORM_USERNAME" >> .env
-            echo "TYPEORM_PASSWORD=$TYPEORM_PASSWORD" >> .env
-            echo "TYPEORM_DATABASE=$TYPEORM_DATABASE" >> .env
+           name: install aws-cli
+           command: |
+             apk add --no-cache \
+             python3 \
+             py3-pip \
+             && pip3 install --upgrade pip \
+             && pip3 install \
+             awscli \
+             && rm -rf /var/cache/apk/*
        - run:
-           name: build backend
-           command: |   # Zip the directory
+           name: install ansible
+           command: |
+             apk add --update ansible
+       - run:
+           name: Deploy backend
+           command: |
+             cd backend
+             npm i
+             npm run build
+             cd ..
+             tar -C backend -czvf artifact.tar.gz .
+             cp backend.tar.gz .circleci/ansible/roles/deploy/tasks/artifact.tar.gz
              cd .circleci/ansible
+             ls
+             aws ec2 describe-instances \
+             \
+                    --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                    --filters "Name=tag:project,Values=udapeople" \
+                    --output text >> inventory.txt
+             echo "Contents  of the inventory.txt file is -------"
              cat inventory.txt
              ansible-playbook -i inventory.txt deploy-backend.yml --private-key udacity.pem
              exit 0
@@ -344,7 +343,6 @@ jobs:
        - run:
            name: Backend smoke test.
            command: |
-             sleep 60
              export BACKEND_IP=$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople  Name=instance-state-name,Values=running | grep PublicIpAddress | grep -o -E "\d+\.\d+\.\d+\.\d+" | grep -v '^10\.')
              #export BACKEND_IP=$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople  Name=instance-state-name,Values=running  --query 'Reservations[*].Instances[*].PublicIpAddress')
              #export BACKEND_IP=$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople  Name=instance-state-name,Values=running --query 'Reservations[*].Instances[*].PublicIpAddress' | grep -o -E "\d+\.\d+\.\d+\.\d+" | grep -v '^10\.')
