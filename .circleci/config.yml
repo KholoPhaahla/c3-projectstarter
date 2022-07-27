@@ -189,11 +189,6 @@ jobs:
            name: Configure server
            command: |
              cd .circleci/ansible
-             aws ec2 describe-instances \
-             \
-                    --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                    --filters "Name=tag:project,Values=udapeople" \
-                    --output text >> inventory.txt
              cat inventory.txt
              ansible-playbook -i inventory.txt configure-server.yml --private-key udacity.pem
   run-migrations:
@@ -309,12 +304,6 @@ jobs:
            name: build backend
            command: |   # Zip the directory
              cd .circleci/ansible
-             aws ec2 describe-instances \
-             \
-                    --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                    --filters "Name=tag:project,Values=udapeople" \
-                    --output text >> inventory.txt
-             echo "Contents  of the inventory.txt file is -------"
              cat inventory.txt
              ansible-playbook -i inventory.txt deploy-backend.yml --private-key udacity.pem
              exit 0
