@@ -7,11 +7,6 @@
   unarchive:
     src: artifact.tar.gz
     dest: ~/backend-app
-
-- name: "Install node dependencies"
-  shell: |
-    cd ~/backend-app
-    npm install
 - name: "Execute node app with PM2"
   shell: |
     cd ~/backend-app/dist
