@@ -24,7 +24,7 @@ commands:
     steps:
       - run:
           name: Revert migrations
-          # Add when this will run
+          when: on_fail
           command: |
             SUCCESS=$(curl --insecure  https://kvdb.io/CnNKHLPoKT92fEm3Tbxcq/migration_${CIRCLE_WORKFLOW_ID:0:7})
             if(( $SUCCESS==1 )); 
@@ -330,7 +330,6 @@ jobs:
            name: install  NodeJS
            command: |
              apk add --update nodejs npm
-             apk add --update curl
        - run:
            name: install aws-cli
            command: |
@@ -361,7 +360,7 @@ jobs:
               if curl -s ${URL} | grep "Welcome"
               then  
                  # Change this to 0 after the job fails
-                 return 1
+                 return 0
               else
                 return 1
               fi
@@ -371,7 +370,7 @@ jobs:
              export BACKEND_IP=$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople  Name=instance-state-name,Values=running | grep PublicIpAddress | grep -o -E "\d+\.\d+\.\d+\.\d+" | grep -v '^10\.')
              #export BACKEND_IP=$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople  Name=instance-state-name,Values=running  --query 'Reservations[*].Instances[*].PublicIpAddress')
              #export BACKEND_IP=$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople  Name=instance-state-name,Values=running --query 'Reservations[*].Instances[*].PublicIpAddress' | grep -o -E "\d+\.\d+\.\d+\.\d+" | grep -v '^10\.')
-             export API_URL="http://${BACKEND_IP}:3030"
+             export API_URL="https://${BACKEND_IP}:3030"
              echo "${API_URL}"
              if curl "${API_URL}/api/status" | grep "ok"
              then
