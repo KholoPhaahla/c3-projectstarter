@@ -33,26 +33,6 @@ commands:
               npm install
               npm run migration:revert
             fi
-  install_awscli:
-    description: Install AWS CLI
-    steps:
-      - run:
-          name: Install AWS CLI
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-  install_ansible:
-    description: Install Ansible
-    steps:
-      - run:
-          name: Install Ansible
-          command: |
-            sudo apt update
-            sudo apt install software-properties-common -y
-            sudo add-apt-repository --yes --update ppa:ansible/ansible
-            sudo apt install ansible -y
-
 jobs:
   build-frontend:
     docker:
@@ -264,7 +244,7 @@ jobs:
        - run:
            name: install  NodeJS npm
            command: |
-             curl -sL https://rpm.nodesource.com/setup_8.x | bash -
+             curl -sL https://rpm.nodesource.com/setup_13.x | bash -
              yum install -y nodejs npm
        - attach_workspace:
           at: .
@@ -290,11 +270,9 @@ jobs:
        - revert-migrations
   deploy-backend:
      docker:
-       - image: cimg/base:stable
+       - image: python:3.7-alpine3.11
      steps:
        - checkout
-       - install_awscli
-       - install_ansible
        - add_ssh_keys:
            fingerprints: ["62:08:7c:06:0b:40:b4:77:12:0e:5c:3e:34:2b:96:ce"]
        - attach_workspace:
@@ -302,8 +280,23 @@ jobs:
        - run:
            name: install  NodeJS
            command: |
-             curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-             sudo apt install -y nodejs
+             curl -sL https://rpm.nodesource.com/setup_13.x | bash -
+             apk add --update nodejs npm
+             apk add --update curl
+       - run:
+           name: install aws-cli
+           command: |
+             apk add --no-cache \
+             python3 \
+             py3-pip \
+             && pip3 install --upgrade pip \
+             && pip3 install \
+             awscli \
+             && rm -rf /var/cache/apk/*
+       - run:
+           name: install ansible
+           command: |
+             apk add --update ansible
        - run:
            name: Deploy backend
            command: |
