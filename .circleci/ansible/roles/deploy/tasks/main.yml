@@ -3,7 +3,6 @@
   file:
     path: ~/backend-app
     state: directory
-    mode: 0755
 - name: "Unarchive backend files to backend-app directory"
   unarchive:
     src: artifact.tar.gz
