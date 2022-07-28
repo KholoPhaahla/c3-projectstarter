@@ -280,6 +280,7 @@ jobs:
        - run:
            name: install  NodeJS
            command: |
+             curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
              apk add --update nodejs npm
              apk add --update curl
        - run:
@@ -362,7 +363,7 @@ jobs:
                  # Change this to 0 after the job fails
                  return 0
               else
-                return 1
+                 return 1
               fi
        - run:
            name: Backend smoke test.
