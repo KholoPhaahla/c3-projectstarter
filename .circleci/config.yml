@@ -280,8 +280,6 @@ jobs:
        - run:
            name: install  NodeJS
            command: |
-             apk add --update curl
-             curl -sL https://rpm.nodesource.com/setup_13.x | bash -
              apk add --update nodejs npm
              apk add --update curl
        - run:
