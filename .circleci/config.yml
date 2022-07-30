@@ -320,8 +320,8 @@ jobs:
                     --output text >> inventory.txt
              echo "Contents  of the inventory.txt file is -------"
              cat inventory.txt
-             ANSIBLE_HOST_KEY_CHECKING=False
-             sudo ansible-playbook -i inventory.txt deploy-backend.yml --private-key udacity.pem
+             export ANSIBLE_HOST_KEY_CHECKING=False
+             ansible-playbook -i inventory.txt deploy-backend.yml --private-key udacity.pem
              exit 0
        - destroy-environment
        - revert-migrations
