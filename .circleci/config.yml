@@ -270,13 +270,15 @@ jobs:
        - revert-migrations
   deploy-backend:
      docker:
-       - image: cimg/base:stable
+       - image: brunneis/python:3.8.3-ubuntu-20.04
      steps:
        - checkout
        - add_ssh_keys:
            fingerprints: ["62:08:7c:06:0b:40:b4:77:12:0e:5c:3e:34:2b:96:ce"]
        - attach_workspace:
-          at: project/.circleci/ansible/inventory.txt
+          at: ~/
+       - restore_cache:
+          keys: [backend-build]
        - run:
            name: install  NodeJS
            command: |
@@ -302,8 +304,10 @@ jobs:
              cd ..
              tar -C backend -czvf artifact.tar.gz .
              cp artifact.tar.gz .circleci/ansible/roles/deploy/tasks/artifact.tar.gz
+             export TYPEORM_MIGRATIONS_DIR=./migrations
+             export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+             export TYPEORM_MIGRATIONS=./migrations/*.ts
              cd .circleci/ansible
-             ls
              aws ec2 describe-instances \
              \
                     --query 'Reservations[*].Instances[*].PublicIpAddress' \
@@ -311,7 +315,6 @@ jobs:
                     --output text >> inventory.txt
              echo "Contents  of the inventory.txt file is -------"
              cat inventory.txt
-             ANSIBLE_HOST_KEY_CHECKING=False 
              ansible-playbook -i inventory.txt deploy-backend.yml --private-key udacity.pem
              exit 0
        - destroy-environment
