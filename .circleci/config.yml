@@ -270,7 +270,7 @@ jobs:
        - revert-migrations
   deploy-backend:
      docker:
-       - image: python:3.7-alpine3.11
+       - image: cimg/base:stable
      steps:
        - checkout
        - add_ssh_keys:
@@ -280,22 +280,17 @@ jobs:
        - run:
            name: install  NodeJS
            command: |
-             apk add --update nodejs npm
-             apk add --update curl
+             sudo apt update
+             curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+             sudo apt install -y nodejs
        - run:
            name: install aws-cli
            command: |
-             apk add --no-cache \
-             python3 \
-             py3-pip \
-             && pip3 install --upgrade pip \
-             && pip3 install \
-             awscli \
-             && rm -rf /var/cache/apk/*
+             pip3 install awscli
        - run:
            name: install ansible
            command: |
-             apk add --update ansible
+             sudo apt install ansible -y
        - run:
            name: Deploy backend
            command: |
