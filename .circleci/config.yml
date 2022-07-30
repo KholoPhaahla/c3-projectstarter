@@ -232,19 +232,22 @@ jobs:
        - destroy-environment
   deploy-frontend:
      docker:
-        - image: amazon/aws-cli
+        - image: cimg/node:13.8.0
      steps:
        - checkout
        - run:
-           name: install  gzip and tar
+           name: install  awscli
            command: |
-             yum install -y tar gzip
-             yum install -y tar curl
-       - run:
-           name: install  NodeJS npm
-           command: |
-             curl -sL https://rpm.nodesource.com/setup_13.x | bash -
-             yum install -y nodejs npm
+               sudo apt-get update && \
+               sudo apt-get install -y \
+               python3 \
+               python3-pip \
+               python3-setuptools \
+               groff \
+               less \
+               && pip3 install --upgrade pip \
+               && sudo apt-get clean
+               pip3 --no-cache-dir install --upgrade awscli
        - attach_workspace:
           at: .
        - run:
@@ -269,29 +272,34 @@ jobs:
        - revert-migrations
   deploy-backend:
      docker:
-       - image: amazon/aws-cli
+       - image: cimg/node:13.8.0
      steps:
        - checkout
        - add_ssh_keys:
            fingerprints: ["62:08:7c:06:0b:40:b4:77:12:0e:5c:3e:34:2b:96:ce"]
-       - run:
-           name: install  gzip and tar
-           command: |
-             yum install -y tar gzip
-             yum install -y tar curl
        - attach_workspace:
           at: ~/
        - restore_cache:
           keys: [backend-build]
        - run:
-           name: install  NodeJS
+           name: install  awscli
            command: |
-             curl -sL https://rpm.nodesource.com/setup_13.x | bash -
-             yum install -y nodejs npm
+               sudo apt-get update && \
+               sudo apt-get install -y \
+               python3 \
+               python3-pip \
+               python3-setuptools \
+               groff \
+               less \
+               && pip3 install --upgrade pip \
+               && sudo apt-get clean
+               pip3 --no-cache-dir install --upgrade awscli
        - run:
            name: install ansible
            command: |
-             yum install -y ansible
+             sudo apt-get update
+             sudo apt-get upgrade -y
+             sudo apt-get install ansible -y
        - run:
            name: Deploy backend
            command: |
