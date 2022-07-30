@@ -281,8 +281,7 @@ jobs:
        - run:
            name: install  NodeJS
            command: |
-             sudo apt update
-             sudo curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+             curl -sL https://rpm.nodesource.com/setup_13.x | bash -
              yum install -y nodejs npm
        - run:
            name: install  gzip and tar
