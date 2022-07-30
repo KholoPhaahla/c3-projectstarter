@@ -313,15 +313,9 @@ jobs:
              export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
              export TYPEORM_MIGRATIONS=./migrations/*.ts
              cd .circleci/ansible
-             aws ec2 describe-instances \
-             \
-                    --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                    --filters "Name=tag:project,Values=udapeople" \
-                    --output text >> inventory.txt
-             echo "Contents  of the inventory.txt file is -------"
              cat inventory.txt
              export ANSIBLE_HOST_KEY_CHECKING=False
-             ansible-playbook -i inventory.txt deploy-backend.yml --private-key udacity.pem
+             ansible-playbook -i inventory.txt deploy-backend.yml #--private-key udacity.pem
              exit 0
        - destroy-environment
        - revert-migrations
