@@ -282,19 +282,19 @@ jobs:
        - run:
            name: install  NodeJS
            command: |
-             sudo apt update
+             apt update
              curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-             sudo apt install -y nodejs
+             apt install -y nodejs
        - run:
            name: install aws-cli
            command: |
-             sudo apt-get update
-             sudo apt-get -y install python3-pip
+             apt-get update
+             apt-get -y install python3-pip
              pip3 install awscli
        - run:
            name: install ansible
            command: |
-             sudo apt install ansible -y
+             apt install ansible -y
        - run:
            name: Deploy backend
            command: |
