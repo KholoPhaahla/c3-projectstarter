@@ -286,7 +286,7 @@ jobs:
            command: |
                sudo apt-get update && \
                sudo apt-get install -y \
-               python3 \
+               python3.8 \
                python3-pip \
                python3-setuptools \
                groff \
@@ -300,6 +300,7 @@ jobs:
              sudo apt-get update
              sudo apt-get upgrade -y
              sudo apt-get install ansible -y
+             sudo apt-get upgrade -y
        - run:
            name: Deploy backend
            command: |
@@ -309,13 +310,10 @@ jobs:
              cd ..
              tar -C backend -czvf artifact.tar.gz .
              cp artifact.tar.gz .circleci/ansible/roles/deploy/tasks/artifact.tar.gz
-             export TYPEORM_MIGRATIONS_DIR=./migrations
-             export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
-             export TYPEORM_MIGRATIONS=./migrations/*.ts
              cd .circleci/ansible
              cat inventory.txt
              export ANSIBLE_HOST_KEY_CHECKING=false
-             ansible-playbook -i inventory.txt deploy-backend.yml --private-key udacity.pem
+             ansible-playbook -i inventory.txt -e 'ansible_python_interpreter=/usr/lib/python3.8' deploy-backend.yml --private-key udacity.pem
              exit 0
        - destroy-environment
        - revert-migrations
