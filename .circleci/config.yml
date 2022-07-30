@@ -229,6 +229,7 @@ jobs:
              then
                 curl https://kvdb.io/CnNKHLPoKT92fEm3Tbxcq/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
              fi
+       - destroy-environment
   deploy-frontend:
      docker:
         - image: amazon/aws-cli
@@ -273,6 +274,11 @@ jobs:
        - checkout
        - add_ssh_keys:
            fingerprints: ["62:08:7c:06:0b:40:b4:77:12:0e:5c:3e:34:2b:96:ce"]
+       - run:
+           name: install  gzip and tar
+           command: |
+             yum install -y tar gzip
+             yum install -y tar curl
        - attach_workspace:
           at: ~/
        - restore_cache:
@@ -282,11 +288,6 @@ jobs:
            command: |
              curl -sL https://rpm.nodesource.com/setup_13.x | bash -
              yum install -y nodejs npm
-       - run:
-           name: install  gzip and tar
-           command: |
-             yum install -y tar gzip
-             yum install -y tar curl
        - run:
            name: install ansible
            command: |
