@@ -211,7 +211,7 @@ jobs:
 
   run-migrations:
      docker:
-       - image: cimg/node:16.15.1
+       - image: cimg/node:16.16.0
      steps:
        - checkout
        - restore_cache:
@@ -272,15 +272,13 @@ jobs:
        - revert-migrations
   deploy-backend:
      docker:
-       - image: cimg/node:13.8.0
+       - image: cimg/node:16.16.0
      steps:
        - checkout
        - add_ssh_keys:
            fingerprints: ["62:08:7c:06:0b:40:b4:77:12:0e:5c:3e:34:2b:96:ce"]
        - attach_workspace:
           at: ~/
-       - restore_cache:
-          keys: [backend-build]
        - run:
            name: install  awscli
            command: |
@@ -313,7 +311,7 @@ jobs:
              cd .circleci/ansible
              cat inventory.txt
              export ANSIBLE_HOST_KEY_CHECKING=false
-             ansible-playbook -i inventory.txt -e 'ansible_python_interpreter=/usr/bin/python3.8' deploy-backend.yml --private-key udacity.pem
+             ansible-playbook -i inventory.txt deploy-backend.yml --private-key udacity.pem
              exit 0
        - destroy-environment
        - revert-migrations
