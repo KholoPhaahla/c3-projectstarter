@@ -16,34 +16,6 @@ commands:
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
             aws s3 rb s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --force   
-  install_awscli:
-    description: Install AWS CLI v2
-    steps:
-      - run:
-          name: Install AWS CLI v2
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-  install_ansible:
-    description: Install Ansible
-    steps:
-      - run:
-          name: Install Ansible
-          command: |
-            sudo apt update
-            sudo apt install python3 -y
-            sudo apt install software-properties-common -y
-            sudo add-apt-repository --yes --update ppa:ansible/ansible
-            sudo apt install ansible -y
-  install_nodejs:
-    description: Install Node.js 13
-    steps:
-      - run:
-          name: Install Node.js 13
-          command: |
-            curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-            sudo apt install -y nodejs
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -300,36 +272,39 @@ jobs:
        - revert-migrations
   deploy-backend:
      docker:
-       - image: cimg/base:stable
+       - image: python:3.7-alpine3.11s
      steps:
        - checkout
-       - install_awscli
-       - install_ansible
-       - install_nodejs
        - add_ssh_keys:
            fingerprints: ["62:08:7c:06:0b:40:b4:77:12:0e:5c:3e:34:2b:96:ce"]
-       - restore_cache:
-          keys: [backend-build]
+       - attach_workspace:
+          at: ~/
+       - run:
+           name: install aws-cli
+           command: |
+             apk add --no-cache \
+             python3 \
+             py3-pip \
+             && pip3 install --upgrade pip \
+             && pip3 install \
+             awscli \
+             && rm -rf /var/cache/apk/*
+       - run:
+           name: Install dependencies
+           command: |
+             apk add --update ansible
        - run:
            name: Deploy backend
            command: |
              cd backend
              npm i
              npm run build
-             tar -czf artifact.tar.gz dist/* package*
              cd ..
-             cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/tasks/artifact.tar.gz
-             export TYPEORM_MIGRATIONS_DIR=./migrations
-             export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
-             export TYPEORM_MIGRATIONS=./migrations/*.ts
+             tar -C backend -czvf artifact.tar.gz .
+             cp artifact.tar.gz .circleci/ansible/roles/deploy/tasks/artifact.tar.gz
              cd .circleci/ansible
-             aws ec2 describe-instances \
-             \
-                    --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                    --filters "Name=tag:project,Values=udapeople" \
-                    --output text >> inventory.txt
-             export ANSIBLE_HOST_KEY_CHECKING=false
              cat inventory.txt
+             export ANSIBLE_HOST_KEY_CHECKING=false
              ansible-playbook -i inventory.txt deploy-backend.yml --private-key udacity.pem
              exit 0
        - destroy-environment
@@ -387,12 +362,12 @@ jobs:
              #export BACKEND_IP=$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople  Name=instance-state-name,Values=running --query 'Reservations[*].Instances[*].PublicIpAddress' | grep -o -E "\d+\.\d+\.\d+\.\d+" | grep -v '^10\.')
              export API_URL="http://${BACKEND_IP}:3030"
              echo "${API_URL}"
-             curl "${API_URL}/api/status" # | grep "ok"
-             #then
-             #   return 0
-             #else
-             #   return 1
-             #fi
+             if curl "${API_URL}/api/status" | grep "ok"
+             then
+                return 0
+             else
+                return 1
+             fi
        - destroy-environment
        - revert-migrations
 #   cloudfront-update:
