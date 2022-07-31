@@ -272,33 +272,29 @@ jobs:
        - revert-migrations
   deploy-backend:
      docker:
-       - image: cimg/node:16.16.0
+       - image: python:3.7-alpine3.11
      steps:
        - checkout
        - add_ssh_keys:
            fingerprints: ["62:08:7c:06:0b:40:b4:77:12:0e:5c:3e:34:2b:96:ce"]
-       - attach_workspace:
-          at: ~/
        - run:
-           name: install  awscli
+           name: install aws-cli
            command: |
-               sudo apt-get update && \
-               sudo apt-get install -y \
-               python3.8 \
-               python3-pip \
-               python3-setuptools \
-               groff \
-               less \
-               && pip3 install --upgrade pip \
-               && sudo apt-get clean
-               pip3 --no-cache-dir install --upgrade awscli
+             apk add --no-cache \
+             python3 \
+             py3-pip \
+             && pip3 install --upgrade pip \
+             && pip3 install \
+             awscli \
+             && rm -rf /var/cache/apk/*
        - run:
-           name: install ansible
+           name: Install ansible
            command: |
-             sudo apt-get update
-             sudo apt-get upgrade -y
-             sudo apt-get install ansible -y
-             sudo apt-get upgrade -y
+             apk add --update ansible
+       - run:
+           name: Install node
+           command: |
+             apk add --update nodejs npm
        - run:
            name: Deploy backend
            command: |
@@ -309,8 +305,13 @@ jobs:
              tar -C backend -czvf artifact.tar.gz .
              cp artifact.tar.gz .circleci/ansible/roles/deploy/tasks/artifact.tar.gz
              cd .circleci/ansible
-             cat inventory.txt
+             aws ec2 describe-instances \
+             \
+                    --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                    --filters "Name=tag:project,Values=udapeople" \
+                    --output text >> inventory.txt
              export ANSIBLE_HOST_KEY_CHECKING=false
+             cat inventory.txt
              ansible-playbook -i inventory.txt deploy-backend.yml --private-key udacity.pem
              exit 0
        - destroy-environment
