@@ -1,16 +1,16 @@
 ---
-- name: Creates directory
-  file:
-    path: ~/backend
-    state: directory
+#- name: Creates directory
+#  file:
+#    path: ~/backend
+#    state: directory
 - name: "Unarchive backend files to backend-app directory"
   unarchive:
     src: artifact.tar.gz
-    dest: ~/backend
+    dest: ~/
 - name: "Configure PM2 to start as service"
   become: true
   shell: |
-    cd ~/backend
+    cd ~/
     npm install
     npm run build
     npm run start:prod
