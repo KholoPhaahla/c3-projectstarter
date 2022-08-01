@@ -290,12 +290,16 @@ jobs:
            command: |
              apk add --update ansible
        - run:
+           name: install nodejs
+           command: |
+             apk add --update nodejs npm
+       - run:
            name: Deploy backend
            command: |
-             #cd backend
-             #npm i
-             #npm run build
-             #cd ..
+             cd backend
+             npm i
+             npm run build
+             cd ..
              tar -C backend -czvf artifact.tar.gz .
              cp artifact.tar.gz .circleci/ansible/roles/deploy/tasks/artifact.tar.gz
              cd .circleci/ansible
