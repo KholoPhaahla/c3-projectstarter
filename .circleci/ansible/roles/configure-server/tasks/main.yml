@@ -8,14 +8,10 @@
   become: true
   apt:
     upgrade: yes
-- name: "Add Node.js from Nodesource"
-  become: true
-  shell: |
-    curl -sL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
 - name: "Install nodejs"
   become: true
   apt:
-    name: ["nodejs","npm"]
+    name: ["nodejs"]
     state: latest
     update_cache: yes
 
