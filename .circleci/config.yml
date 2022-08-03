@@ -206,7 +206,7 @@ jobs:
                     --filters "Name=tag:project,Values=udapeople" \
                     --output text >> inventory.txt
              cat inventory.txt
-             ansible-playbook -i inventory.txt configure-server.yml --private-key udacity.pem
+             ansible-playbook -i inventory.txt configure-server.yml
        - destroy-environment
 
   run-migrations:
@@ -312,8 +312,7 @@ jobs:
              echo "Contents  of the inventory.txt file is -------"
              cat inventory.txt
              ANSIBLE_HOST_KEY_CHECKING=False 
-             ansible-playbook -i inventory.txt deploy-backend.yml --private-key udacity.pem
-             exit 0
+             ansible-playbook -i inventory.txt deploy-backend.yml
        #- destroy-environment
        #- revert-migrations
 
