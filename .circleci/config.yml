@@ -194,10 +194,12 @@ jobs:
              && pip3 install \
              awscli \
              && rm -rf /var/cache/apk/*
+             
        - run:
            name: Install dependencies
            command: |
              apk add --update ansible
+             pip3 -U paramiko
        - run:
            name: Configure server
            command: |
