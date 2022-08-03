@@ -255,35 +255,38 @@ jobs:
        #- destroy-environment
        #- revert-migrations
   deploy-backend:
-     docker:
-       - image: python:3.7-alpine3.11
-     steps:
-       - checkout
-       - add_ssh_keys:
-           fingerprints: ["62:08:7c:06:0b:40:b4:77:12:0e:5c:3e:34:2b:96:ce"]
-       - attach_workspace:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - checkout
+      - install_awscli
+      - install_ansible
+      - add_ssh_keys:
+          fingerprints: ["62:08:7c:06:0b:40:b4:77:12:0e:5c:3e:34:2b:96:ce"]
+      - attach_workspace:
           at: ~/
-       - run:
-           name: install ansible
-           command: |
-             apk add --update ansible
-       - run:
-           name: install nodejs
-           command: |
-             apk add --update nodejs npm
-       - run:
-           name: Deploy backend
-           command: |
-             cd backend
-             npm i
-             npm run build
-             cd ..
-             tar -C backend -czvf artifact.tar.gz .
-             cp artifact.tar.gz .circleci/ansible/roles/deploy/tasks/artifact.tar.gz
-             cd .circleci/ansible
-             cat inventory.txt
-             #ANSIBLE_HOST_KEY_CHECKING=False 
-             ansible-playbook -i inventory.txt deploy-backend.yml --private-key udacity.pem
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Install dependencies
+          command: |
+            curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+            sudo apt install -y nodejs
+      - run:
+          name: Deploy backend
+          command: |
+            cd backend
+            npm install
+            npm run build
+            tar -czf artifact.tar.gz dist/* package*
+            cd ..
+            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
+            export TYPEORM_MIGRATIONS_DIR=./migrations
+            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+            export TYPEORM_MIGRATIONS=./migrations/*.ts
+            cd .circleci/ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
        #- destroy-environment
        #- revert-migrations
 
