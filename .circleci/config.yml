@@ -47,6 +47,7 @@ jobs:
             cd frontend
             npm install
             npm run build
+            echo "${AWS_ACCESS_KEY_ID}"
            # exit 1
       - save_cache:
           paths: [frontend/node_modules]
