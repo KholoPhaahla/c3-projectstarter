@@ -187,7 +187,10 @@ jobs:
        - run:
            name: Install dependencies
            command: |
+             apk update
              apk add --update ansible
+             apk add --update tar
+             apk add --update gzip
        - run:
            name: Configure server
            command: |
@@ -263,16 +266,6 @@ jobs:
        - attach_workspace:
           at: ~/
        - run:
-           name: install aws-cli
-           command: |
-             apk add --no-cache \
-             python3 \
-             py3-pip \
-             && pip3 install --upgrade pip \
-             && pip3 install \
-             awscli \
-             && rm -rf /var/cache/apk/*
-       - run:
            name: install ansible
            command: |
              apk add --update ansible
@@ -290,15 +283,8 @@ jobs:
              tar -C backend -czvf artifact.tar.gz .
              cp artifact.tar.gz .circleci/ansible/roles/deploy/tasks/artifact.tar.gz
              cd .circleci/ansible
-             ls
-             aws ec2 describe-instances \
-             \
-                    --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                    --filters "Name=tag:project,Values=udapeople" \
-                    --output text >> inventory.txt
-             echo "Contents  of the inventory.txt file is -------"
              cat inventory.txt
-             ANSIBLE_HOST_KEY_CHECKING=False 
+             #ANSIBLE_HOST_KEY_CHECKING=False 
              ansible-playbook -i inventory.txt deploy-backend.yml
        #- destroy-environment
        #- revert-migrations
