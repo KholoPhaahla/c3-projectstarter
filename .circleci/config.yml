@@ -181,24 +181,19 @@ jobs:
      steps:
        - checkout
        - add_ssh_keys:
-           fingerprints: ["62:08:7c:06:0b:40:b4:77:12:0e:5c:3e:34:2b:96:ce"]
+           fingerprints: ["62:08:7c:06:0b:40:b4:77:12:0e:5c:3e:34:2b:96:ce"] 
        - attach_workspace:
-          at: ~/
+          at: ~/project/.circleci/ansible/inventory.txt
        - run:
            name: Install dependencies
            command: |
-             apk add --no-cache \
-             python3 \
-             py3-pip \
-             && pip3 install --upgrade pip \
-             && rm -rf /var/cache/apk/*
              apk add --update ansible
        - run:
            name: Configure server
            command: |
              cd .circleci/ansible
              cat inventory.txt
-             ansible-playbook -i inventory.txt configure-server.yml --private-key udacity.pem
+             ansible-playbook -i inventory.txt configure-server.yml
 
        - destroy-environment
   run-migrations:
