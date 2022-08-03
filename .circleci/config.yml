@@ -196,7 +196,7 @@ jobs:
            command: |
              cd .circleci/ansible
              cat inventory.txt
-             ansible-playbook -i inventory.txt configure-server.yml
+             ansible-playbook -i inventory.txt configure-server.yml --private-key udacity.pem
        - destroy-environment
   run-migrations:
      docker:
@@ -262,7 +262,7 @@ jobs:
      steps:
        - checkout
        - add_ssh_keys:
-           fingerprints: ["90:6a:e9:e2:03:c7:d5:15:1c:31:11:93:88:bb:be:4f"]
+           fingerprints: ["62:08:7c:06:0b:40:b4:77:12:0e:5c:3e:34:2b:96:ce"]
        - attach_workspace:
           at: ~/
        - run:
@@ -285,7 +285,7 @@ jobs:
              cd .circleci/ansible
              cat inventory.txt
              #ANSIBLE_HOST_KEY_CHECKING=False 
-             ansible-playbook -i inventory.txt deploy-backend.yml
+             ansible-playbook -i inventory.txt deploy-backend.yml --private-key udacity.pem
        #- destroy-environment
        #- revert-migrations
 
