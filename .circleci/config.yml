@@ -286,19 +286,8 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - run:
-          name: Install dependencies
-          command: |
-                curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
-                source ~/.bashrc
-                nvm install node
-                nvm install 13.8.0
-      - run:
           name: Deploy backend
           command: |
-            cd backend
-            npm install
-            npm run build
-            cd ..
             tar -C backend -czvf artifact.tar.gz .
             cp artifact.tar.gz .circleci/ansible/roles/deploy/tasks/artifact.tar.gz
             export TYPEORM_MIGRATIONS_DIR=./migrations
