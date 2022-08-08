@@ -3,14 +3,10 @@
 - name: "Add nodejs from Nodesource"
   become: true
   shell: |
-    curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-- name: "Install nodejs"
-  become: true
-  apt:
-    name: ["nodejs"]
-    state: latest
-    update_cache: yes
-
+    curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+    source ~/.bashrc
+    nvm install node
+    nvm install 13.8.0
 - name: "Globally install pm2"
   npm:
     name: pm2
