@@ -237,7 +237,7 @@ jobs:
        - destroy-environment
   deploy-frontend:
      docker:
-        - image: cimg/node:13.8.0
+        - image: circleci/node:13.8.0
      steps:
        - checkout
        - install_awscli
@@ -255,6 +255,9 @@ jobs:
        - run:
            name: Deploy frontend objects
            command: |
+             export BACKEND_IP=$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople  Name=instance-state-name,Values=running | grep PublicIpAddress | grep -o -P "\d+\.\d+\.\d+\.\d+" | grep -v '^10\.')
+             export API_URL=http://${BACKEND_IP}:3030
+             echo "API_URL=${API_URL}"
              cat frontend/.env
              cd frontend
              npm install
@@ -264,7 +267,7 @@ jobs:
        - revert-migrations
   deploy-backend:
     docker:
-      - image: cimg/base:stable
+      - image: circleci/base:stable
     steps:
       - checkout
       - install_awscli
